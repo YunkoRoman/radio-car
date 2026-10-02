@@ -1,0 +1,12 @@
+CompileFlags:
+  BuiltinHeaders: QueryDriver
+  # GCC-only flags from the ESP8266 (xtensa-lx106) toolchain that clang rejects.
+  Remove:
+    - -free
+    - -fipa-pta
+    - -mlongcalls
+    - -mtext-section-literals
+    - -march=*
+    - -mabi=*
+Diagnostics:
+  Suppress: [pp_expects_filename, unused-includes]
