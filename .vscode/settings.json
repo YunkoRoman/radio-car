@@ -1,0 +1,11 @@
+{
+  "files.associations": {
+    "*.ino": "cpp"
+  },
+  "editor.formatOnSave": true,
+  "clangd.arguments": [
+    "--compile-commands-dir=/home/roman/Desktop/Projects/radio_car/controller/.cache/clangd",
+    "--query-driver=/home/roman/.platformio/packages/toolchain-*/bin/*,/home/roman/.platformio/packages/tool-*/bin/*"
+  ]
+}
+

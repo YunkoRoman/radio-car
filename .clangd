@@ -1,0 +1,24 @@
+CompileFlags:
+  BuiltinHeaders: QueryDriver
+  # GCC-only flags from the ESP-IDF toolchain that clang rejects.
+  Remove:
+    - -fstrict-volatile-bitfields
+    - -fno-tree-switch-conversion
+    - -fno-shrink-wrap
+    - -mlongcalls
+    - -mtext-section-literals
+    - -mdisable-hardware-atomics
+    - -fno-jump-tables
+    - -march=*
+    - -mabi=*
+Diagnostics:
+  Suppress: [pp_expects_filename, unused-includes]
+---
+If:
+  PathMatch: .*\.ino
+CompileFlags:
+  Add:
+    - "-x"
+    - "c++"
+    - "-include"
+    - "Arduino.h"
