@@ -51,3 +51,30 @@ needs `board = d1_mini`.
 - `car/` builds with Espressif8266 Arduino: RAM 34.5%, flash 25.7%.
   `clangd --check=src/main.cpp` reports 0 errors.
 - Not yet run on hardware: no ESP8266 connected.
+
+### 2026-10-02: ESP-NOW receiver and shared protocol header
+
+- `ControlPacket` moved from `controller/include/` to `shared/control_packet.h`;
+  both `platformio.ini` files add `-I../shared`. The remote binary size did not
+  change.
+- `car/src/main.cpp` is now an ESP-NOW receiver on channel 1 (role SLAVE,
+  accepts any sender, so the remote's broadcast arrives). The receive callback
+  rejects packets with the wrong size or protocol version (`bad`), counts
+  sequence gaps as `lost` (gaps ≥1000 are treated as a remote restart), and
+  stores the latest packet. `loop()` snapshots it every 200 ms and prints
+  `NO SIGNAL` when no packet arrived for 300 ms — the hook for the future
+  motor failsafe.
+- First hardware test received only ~5% of packets (`lost` 56–60 between
+  arrivals). Two changes together fixed it: remote TX power lowered to
+  8.5 dBm (`WiFi.setTxPower`, known ESP32-C3 SuperMini antenna issue) and
+  ESP8266 modem sleep disabled (`WIFI_NONE_SLEEP`). Both boards now print
+  their actual channel. Retest: 491 packets in 10 s, `lost=0`, `bad=0`,
+  packet age 13–17 ms. Which change mattered was not isolated.
+- clangd: the pioarduino IDE extension writes `.cache/clangd/compile_commands.json`
+  and injects the ESP32 core include path even for ESP8266, which broke
+  `Arduino.h` resolution in the editor. `car/.clangd` removes that path; a root
+  `.clangd` strips both toolchains' GCC-only flags and forces C++ for headers
+  in `shared/`. All four clangd checks report 0 errors.
+- Known nit: `loop()` reads `millis()` before the snapshot, so a packet landing
+  in between could produce one spurious `NO SIGNAL` line; fix when the
+  failsafe starts driving motors.

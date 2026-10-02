@@ -1,0 +1,6 @@
+{
+    "clangd.arguments": [
+        "--compile-commands-dir=/home/roman/Desktop/Projects/radio_car/car/.cache/clangd",
+        "--query-driver=/home/roman/.platformio/packages/toolchain-*/bin/*,/home/roman/.platformio/packages/tool-*/bin/*"
+    ]
+}

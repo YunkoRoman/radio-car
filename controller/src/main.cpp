@@ -37,6 +37,8 @@ void onSent(const uint8_t*, esp_now_send_status_t status) {
 bool initRadio() {
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();
+  // The SuperMini's antenna is poorly matched; full power makes reception worse.
+  WiFi.setTxPower(WIFI_POWER_8_5dBm);
   esp_wifi_set_channel(ESPNOW_CHANNEL, WIFI_SECOND_CHAN_NONE);
 
   if (esp_now_init() != ESP_OK) {
@@ -62,8 +64,11 @@ void setup() {
   analogReadResolution(12);  // 0..4095
 
   radioReady = initRadio();
-  Serial.printf("remote MAC %s, channel %u, peer %02X:%02X:%02X:%02X:%02X:%02X%s\n",
-                WiFi.macAddress().c_str(), ESPNOW_CHANNEL,
+  uint8_t channel = 0;
+  wifi_second_chan_t second;
+  esp_wifi_get_channel(&channel, &second);
+  Serial.printf("remote MAC %s, channel %u (actual %u), peer %02X:%02X:%02X:%02X:%02X:%02X%s\n",
+                WiFi.macAddress().c_str(), ESPNOW_CHANNEL, channel,
                 RECEIVER_MAC[0], RECEIVER_MAC[1], RECEIVER_MAC[2],
                 RECEIVER_MAC[3], RECEIVER_MAC[4], RECEIVER_MAC[5],
                 RECEIVER_MAC_IS_PLACEHOLDER ? " (broadcast placeholder)" : "");

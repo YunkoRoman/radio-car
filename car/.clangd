@@ -1,3 +1,12 @@
+If:
+  PathMatch: .*\.ino
+CompileFlags:
+  Add:
+    - "-x"
+    - "c++"
+    - "-include"
+    - "Arduino.h"
+---
 CompileFlags:
   BuiltinHeaders: QueryDriver
   # GCC-only flags from the ESP8266 (xtensa-lx106) toolchain that clang rejects.
@@ -8,5 +17,8 @@ CompileFlags:
     - -mtext-section-literals
     - -march=*
     - -mabi=*
+    # The pioarduino IDE extension injects the ESP32 core into every compile
+    # database it writes, even for ESP8266; it shadows the ESP8266 Arduino.h.
+    - -I/home/roman/.platformio/packages/framework-arduinoespressif32/cores/esp32
 Diagnostics:
   Suppress: [pp_expects_filename, unused-includes]

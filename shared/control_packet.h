@@ -5,6 +5,7 @@
 // Bump when the wire layout changes; the receiver drops other versions.
 constexpr uint8_t CONTROL_PROTOCOL_VERSION = 1;
 
+// Shared by controller/ (sender) and car/ (receiver); both add -I../shared.
 // Sent over ESP-NOW, little-endian on both ESP32 and ESP8266.
 struct __attribute__((packed)) ControlPacket {
   uint8_t version;

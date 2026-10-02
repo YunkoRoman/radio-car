@@ -1,0 +1,20 @@
+# Headers in shared/ have no compile command of their own; clangd borrows one
+# from the project that includes them, so strip both toolchains' GCC-only
+# flags and force C++.
+If:
+  PathMatch: shared/.*
+CompileFlags:
+  Add: [-xc++, -std=gnu++17]
+  Remove:
+    - -std=*
+    - -fstrict-volatile-bitfields
+    - -fno-tree-switch-conversion
+    - -fno-shrink-wrap
+    - -mlongcalls
+    - -mtext-section-literals
+    - -mdisable-hardware-atomics
+    - -fno-jump-tables
+    - -free
+    - -fipa-pta
+    - -march=*
+    - -mabi=*
