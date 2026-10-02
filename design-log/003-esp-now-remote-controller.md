@@ -117,3 +117,21 @@ is available.
   18.9%. User confirmed on hardware: centre 0, stops ±1000 in expected
   directions.
 - Next step: ESP-NOW `ControlPacket` transmission every 20 ms.
+
+### 2026-10-02: ESP-NOW transmitter
+
+- Added `include/control_packet.h` (7-byte packed `ControlPacket`, protocol
+  version 1) and `include/radio_config.h` (receiver MAC, placeholder flag,
+  channel 1, 20 ms send interval).
+- Design change: while the receiver MAC is unknown, the placeholder is the
+  broadcast address `FF:FF:FF:FF:FF:FF` instead of all zeros, and the peer is
+  registered. This lets the radio path be verified now, and the future ESP8266
+  receiver can accept packets before its MAC is configured. Broadcast frames
+  are not acknowledged, so send callbacks always report success until a real
+  peer MAC is set.
+- `src/main.cpp` samples both sticks and sends a `ControlPacket` every 20 ms;
+  it logs remote MAC, channel, peer, sequence, values, immediate send result,
+  and callback ok/fail counters every 200 ms.
+- Build: RAM 11.5%, flash 54.6%, no warnings. Uploaded to the ESP32-C3
+  (remote MAC `44:B1:76:17:BC:B4`); serial showed `send=ESP_OK` and
+  `fail=0` across 300+ packets at rest with throttle/steering 0.
