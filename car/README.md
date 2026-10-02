@@ -17,5 +17,16 @@ pio run -t upload
 pio device monitor -b 115200
 ```
 
-For a Wemos D1 mini, set `board = d1_mini` in `platformio.ini`. After adding a
-new library include, regenerate the clangd database with `pio run -t compiledb`.
+Steering: MG90S servo on GPIO4, powered from 5 V. `steeringToPulseUs()`
+(`include/steering.h`) maps steering −1000…1000 to `SERVO_CAL` centre ± range
+in µs; without a fresh packet the wheels go straight. Tune `SERVO_CAL` in
+`src/main.cpp` for the mounted servo.
+
+```bash
+g++ -std=c++17 -Wall -Wextra -Werror -Iinclude test/test_steering/test_steering.cpp -o /tmp/test_steering && /tmp/test_steering
+```
+
+clangd reads `.cache/clangd/compile_commands.json`, which the pioarduino IDE
+extension owns and only regenerates when the file is deleted. After adding a
+new library include, run `rm .cache/clangd/compile_commands.json` and wait a
+few seconds.

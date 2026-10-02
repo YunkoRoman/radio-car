@@ -1,8 +1,10 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
+#include <Servo.h>
 #include <espnow.h>
 
 #include "control_packet.h"
+#include "steering.h"
 
 constexpr uint8_t ESPNOW_CHANNEL = 1;  // must match the remote
 constexpr uint32_t SIGNAL_TIMEOUT_MS = 300;
@@ -17,6 +19,11 @@ constexpr uint32_t LOST_BLINK_MS = 125;
 
 enum class LinkState { Searching, Connected, Lost };
 
+// MG90S steering servo, signal on GPIO4 (shared with the Witty button, which
+// only pulls it low while pressed). Start small; widen after checking lock.
+constexpr uint8_t SERVO_PIN = 4;
+constexpr ServoCalibration SERVO_CAL{1150, 500, false};
+
 // Written in the ESP-NOW receive callback, read in loop().
 volatile bool hasPacket = false;
 volatile uint32_t lastPacketMs = 0;
@@ -27,6 +34,8 @@ ControlPacket latest{};
 
 uint32_t lastPrintMs = 0;
 LinkState shownState = LinkState::Searching;
+Servo steeringServo;
+int servoPulseUs = SERVO_CAL.centerUs;
 
 void setLed(bool red, bool green, bool blue) {
   digitalWrite(LED_RED, red);
@@ -84,6 +93,8 @@ void setup() {
   pinMode(LED_BLUE, OUTPUT);
   Serial.println();
   ledSelfTest();
+  // Wide attach limits; steeringToPulseUs keeps the pulse inside SERVO_CAL.
+  steeringServo.attach(SERVO_PIN, 500, 2500, SERVO_CAL.centerUs);
 
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();
@@ -113,6 +124,14 @@ void loop() {
                     : age > SIGNAL_TIMEOUT_MS  ? LinkState::Lost
                                                : LinkState::Connected;
   showLinkState(state, now);
+
+  // Failsafe: without a fresh packet the wheels point straight.
+  int pulse = state == LinkState::Connected ? steeringToPulseUs(packet.steering, SERVO_CAL)
+                                            : SERVO_CAL.centerUs;
+  if (pulse != servoPulseUs) {
+    steeringServo.writeMicroseconds(pulse);
+    servoPulseUs = pulse;
+  }
   if (state != shownState) {
     const char* names[] = {"SEARCHING", "CONNECTED", "LOST"};
     Serial.printf("link: %s\n", names[static_cast<int>(state)]);
@@ -128,8 +147,8 @@ void loop() {
                   (unsigned long)lostCount, (unsigned long)bad);
     return;
   }
-  Serial.printf("seq=%5u throttle=%5d steering=%5d age=%3lums rx=%lu lost=%lu bad=%lu\n",
-                packet.sequence, packet.throttle, packet.steering,
+  Serial.printf("seq=%5u throttle=%5d steering=%5d servo=%4dus age=%3lums rx=%lu lost=%lu bad=%lu\n",
+                packet.sequence, packet.throttle, packet.steering, servoPulseUs,
                 (unsigned long)age, (unsigned long)rx, (unsigned long)lostCount,
                 (unsigned long)bad);
 }

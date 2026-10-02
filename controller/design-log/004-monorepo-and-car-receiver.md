@@ -92,3 +92,21 @@ needs `board = d1_mini`.
 - Fixed the earlier nit: `millis()` is now read inside the snapshot.
 - Verified on hardware: user confirmed colours; serial showed
   `link: CONNECTED` with 1 lost packet out of 179.
+
+### 2026-10-02: steering servo
+
+- Hardware plan agreed: DRV8833 for two TT motors, one MG90S servo turning the
+  wheels directly (no linkage), 2S 18650 pack, ESP and servo on 5 V from an
+  LM2596. Motor PWM will be capped at 70% because 8.4 V exceeds the TT
+  motors' rating.
+- Added `car/include/steering.h` (`ServoCalibration`, `steeringToPulseUs()`:
+  clamp, centre ± range in µs, optional inversion) with host test
+  `car/test/test_steering` (passes).
+- `car/src/main.cpp` drives the servo on GPIO4 (`Servo`, attach limits
+  500–2500 µs); the pulse is written only when it changes, and is the centre
+  whenever the link state is not Connected (failsafe). Serial shows `servo=…us`.
+- Calibrated by the user on hardware: `SERVO_CAL{1150, 500, false}`. Tested
+  with the servo powered from the Witty 5 V pin over USB; no bulk capacitor
+  for now — add one if the car resets while steering.
+- clangd: the pioarduino database is regenerated only when deleted; documented
+  in `car/README.md`.
