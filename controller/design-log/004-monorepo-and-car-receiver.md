@@ -78,3 +78,17 @@ needs `board = d1_mini`.
 - Known nit: `loop()` reads `millis()` before the snapshot, so a packet landing
   in between could produce one spurious `NO SIGNAL` line; fix when the
   failsafe starts driving motors.
+
+### 2026-10-02: link-state RGB LED
+
+- The car board is a Witty Cloud (ESP-12F, CH340, RGB LED); `nodemcuv2`
+  remains the build target since the module and flash size match.
+- Added `LinkState { Searching, Connected, Lost }` in `car/src/main.cpp`,
+  derived each `loop()` pass from the packet snapshot: no packet since boot →
+  Searching (blue, 500 ms blink); last packet ≤300 ms old → Connected (steady
+  green); otherwise Lost (red, 125 ms blink). RGB pins: red GPIO15, green
+  GPIO12, blue GPIO13, HIGH = on. State changes print `link: …`; a boot
+  self-test flashes red, green, blue.
+- Fixed the earlier nit: `millis()` is now read inside the snapshot.
+- Verified on hardware: user confirmed colours; serial showed
+  `link: CONNECTED` with 1 lost packet out of 179.

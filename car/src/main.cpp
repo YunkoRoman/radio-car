@@ -8,6 +8,15 @@ constexpr uint8_t ESPNOW_CHANNEL = 1;  // must match the remote
 constexpr uint32_t SIGNAL_TIMEOUT_MS = 300;
 constexpr uint32_t PRINT_INTERVAL_MS = 200;
 
+// Witty Cloud RGB LED, HIGH = on.
+constexpr uint8_t LED_RED = 15;
+constexpr uint8_t LED_GREEN = 12;
+constexpr uint8_t LED_BLUE = 13;
+constexpr uint32_t SEARCH_BLINK_MS = 500;
+constexpr uint32_t LOST_BLINK_MS = 125;
+
+enum class LinkState { Searching, Connected, Lost };
+
 // Written in the ESP-NOW receive callback, read in loop().
 volatile bool hasPacket = false;
 volatile uint32_t lastPacketMs = 0;
@@ -17,6 +26,39 @@ volatile uint32_t rejected = 0;  // wrong size or protocol version
 ControlPacket latest{};
 
 uint32_t lastPrintMs = 0;
+LinkState shownState = LinkState::Searching;
+
+void setLed(bool red, bool green, bool blue) {
+  digitalWrite(LED_RED, red);
+  digitalWrite(LED_GREEN, green);
+  digitalWrite(LED_BLUE, blue);
+}
+
+// Shows each colour once so wrong pin mapping is obvious at boot.
+void ledSelfTest() {
+  const char* names[] = {"red", "green", "blue"};
+  for (int i = 0; i < 3; i++) {
+    Serial.printf("LED test: %s\n", names[i]);
+    setLed(i == 0, i == 1, i == 2);
+    delay(400);
+  }
+  setLed(false, false, false);
+}
+
+// Searching: slow blue blink. Connected: steady green. Lost: fast red blink.
+void showLinkState(LinkState state, uint32_t now) {
+  switch (state) {
+    case LinkState::Searching:
+      setLed(false, false, (now / SEARCH_BLINK_MS) % 2 == 0);
+      break;
+    case LinkState::Connected:
+      setLed(false, true, false);
+      break;
+    case LinkState::Lost:
+      setLed((now / LOST_BLINK_MS) % 2 == 0, false, false);
+      break;
+  }
+}
 
 void onReceive(uint8_t*, uint8_t* data, uint8_t len) {
   if (len != sizeof(ControlPacket) || data[0] != CONTROL_PROTOCOL_VERSION) {
@@ -37,6 +79,12 @@ void onReceive(uint8_t*, uint8_t* data, uint8_t len) {
 
 void setup() {
   Serial.begin(115200);
+  pinMode(LED_RED, OUTPUT);
+  pinMode(LED_GREEN, OUTPUT);
+  pinMode(LED_BLUE, OUTPUT);
+  Serial.println();
+  ledSelfTest();
+
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();
   WiFi.setSleepMode(WIFI_NONE_SLEEP);  // keep the radio listening all the time
@@ -48,23 +96,33 @@ void setup() {
   }
   esp_now_set_self_role(ESP_NOW_ROLE_SLAVE);
   esp_now_register_recv_cb(onReceive);
-  Serial.printf("\ncar MAC %s, channel %u (actual %u), waiting for remote\n",
+  Serial.printf("car MAC %s, channel %u (actual %u), waiting for remote\n",
                 WiFi.macAddress().c_str(), ESPNOW_CHANNEL, wifi_get_channel());
 }
 
 void loop() {
-  uint32_t now = millis();
-  if (now - lastPrintMs < PRINT_INTERVAL_MS) return;
-  lastPrintMs = now;
-
   noInterrupts();
+  uint32_t now = millis();  // read with the snapshot so age never underflows
   ControlPacket packet = latest;
   bool any = hasPacket;
   uint32_t age = now - lastPacketMs;
   uint32_t rx = received, lostCount = lost, bad = rejected;
   interrupts();
 
-  if (!any || age > SIGNAL_TIMEOUT_MS) {
+  LinkState state = !any                       ? LinkState::Searching
+                    : age > SIGNAL_TIMEOUT_MS  ? LinkState::Lost
+                                               : LinkState::Connected;
+  showLinkState(state, now);
+  if (state != shownState) {
+    const char* names[] = {"SEARCHING", "CONNECTED", "LOST"};
+    Serial.printf("link: %s\n", names[static_cast<int>(state)]);
+    shownState = state;
+  }
+
+  if (now - lastPrintMs < PRINT_INTERVAL_MS) return;
+  lastPrintMs = now;
+
+  if (state != LinkState::Connected) {
     // Failsafe: later this stops the motors and centres steering.
     Serial.printf("NO SIGNAL rx=%lu lost=%lu bad=%lu\n", (unsigned long)rx,
                   (unsigned long)lostCount, (unsigned long)bad);
