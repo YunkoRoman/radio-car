@@ -135,3 +135,17 @@ is available.
 - Build: RAM 11.5%, flash 54.6%, no warnings. Uploaded to the ESP32-C3
   (remote MAC `44:B1:76:17:BC:B4`); serial showed `send=ESP_OK` and
   `fail=0` across 300+ packets at rest with throttle/steering 0.
+
+### 2026-10-02: unicast to the car and end-to-end stick test
+
+- `RECEIVER_MAC` is now the car's station MAC `C8:C9:A3:0B:D5:1B` with
+  `RECEIVER_MAC_IS_PLACEHOLDER = false`, so the car acknowledges packets and
+  the remote's `fail` counter reflects real losses.
+- End-to-end test, both serial ports read at once while the user moved the
+  sticks: the car received throttle +1000 forward / −1000 back, steering
+  −1000 left / +1000 right, and 0/0 at rest.
+- Loss check: over ~3,900 packets the remote reported `fail=55` and the car's
+  `lost` rose by exactly 55 (~1.4%). An earlier 8 s window with the remote
+  lying still had 0 failures, so handling the SuperMini likely affects the
+  link; well below the 300 ms (~15 packet) failsafe threshold, but range
+  should be tested.

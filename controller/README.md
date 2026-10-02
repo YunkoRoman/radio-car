@@ -18,10 +18,11 @@ calibrated and normalized to `-1000…1000` (`include/joystick.h`): throttle
 forward and steering right are positive, dead zone ±60.
 
 Every 20 ms the remote sends a 7-byte `ControlPacket`
-(`shared/control_packet.h`) over ESP-NOW on Wi-Fi channel 1. Until the car
-receiver exists, packets go to the broadcast address; set the real receiver
-MAC in `include/radio_config.h` and set `RECEIVER_MAC_IS_PLACEHOLDER` to
-`false`. Every 200 ms the Serial Monitor (115200) shows the sequence number,
+(`shared/control_packet.h`) over ESP-NOW on Wi-Fi channel 1 to the car's MAC
+(`include/radio_config.h`). The car acknowledges each packet, so the `fail`
+counter shows real losses. For a different car, put its MAC there (it prints
+it at startup), or use `FF:FF:FF:FF:FF:FF` with `RECEIVER_MAC_IS_PLACEHOLDER =
+true` to broadcast. Every 200 ms the Serial Monitor (115200) shows the sequence number,
 values, and send counters.
 
 ```bash
