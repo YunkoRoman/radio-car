@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="uk">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Радіомашинка · схеми</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+  :root{
+    --paper:#f4efe4;
+    --paper-raised:#faf6ec;
+    --ink:#2a251d;
+    --ink-soft:#5a5347;
+    --rule:#d8cdb6;
+    --rule-strong:#b7a98a;
+    --power:#a3211f;
+    --gnd:#2a251d;
+    --gate:#c1631f;
+    --sense:#1f6e6b;
+    --tag-bg:#ece2c9;
+    --code-bg:#eee5cf;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#1c1a15;
+      --paper-raised:#242019;
+      --ink:#f1ead9;
+      --ink-soft:#b6ab93;
+      --rule:#4a4334;
+      --rule-strong:#6b6146;
+      --power:#e2695f;
+      --gnd:#f1ead9;
+      --gate:#e8a85e;
+      --sense:#6bc2bd;
+      --tag-bg:#332c1f;
+      --code-bg:#2b2519;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#1c1a15;
+    --paper-raised:#242019;
+    --ink:#f1ead9;
+    --ink-soft:#b6ab93;
+    --rule:#4a4334;
+    --rule-strong:#6b6146;
+    --power:#e2695f;
+    --gnd:#f1ead9;
+    --gate:#e8a85e;
+    --sense:#6bc2bd;
+    --tag-bg:#332c1f;
+    --code-bg:#2b2519;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Archivo',system-ui,sans-serif;
+    padding-inline:20px;
+    padding-block:48px;
+    background-image:
+      linear-gradient(var(--rule) 1px, transparent 1px),
+      linear-gradient(90deg, var(--rule) 1px, transparent 1px);
+    background-size:28px 28px;
+    background-attachment:local;
+  }
+  .sheet{
+    max-width:920px;
+    margin-inline:auto;
+    background:var(--paper-raised);
+    border:1px solid var(--rule-strong);
+    box-shadow:0 1px 0 var(--rule-strong);
+  }
+  header{
+    padding:28px 32px 22px;
+    border-bottom:2px solid var(--ink);
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .title-block h1{
+    margin:0;
+    font-size:clamp(1.5rem, 3vw, 2.1rem);
+    font-weight:800;
+    letter-spacing:-0.01em;
+    text-wrap:balance;
+  }
+  .title-block p{
+    margin:4px 0 0;
+    color:var(--ink-soft);
+    font-size:0.95rem;
+    max-width:60ch;
+  }
+  .drawing-no{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.75rem;
+    color:var(--ink-soft);
+    text-align:right;
+    line-height:1.6;
+  }
+  .drawing-no b{ color:var(--ink); font-weight:600; }
+
+  main{ padding:28px 32px 36px; }
+
+  section{ margin-block-end:40px; }
+  section:last-child{ margin-block-end:0; }
+
+  h2{
+    font-size:0.78rem;
+    font-weight:700;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin:0 0 14px;
+    padding-bottom:8px;
+    border-bottom:1px solid var(--rule);
+  }
+
+  figure{ margin:0; }
+  .schem-frame{
+    background:var(--paper);
+    border:1px solid var(--rule-strong);
+    padding:12px;
+  }
+  svg{ display:block; width:100%; height:auto; color:var(--ink); }
+
+  .schem-frame{ overflow-x:auto; }
+  svg.schem{ min-width:620px; }
+  svg.schem text{ font-family:'JetBrains Mono',monospace; font-size:13px; fill:var(--ink); }
+  svg.schem .lbl{ fill:var(--ink-soft); font-size:12px; }
+  svg.schem .w{ stroke:currentColor; stroke-width:2; fill:none; }
+  svg.schem .wp{ stroke:var(--power); stroke-width:2; fill:none; }
+  svg.schem .ws{ stroke:var(--gate); stroke-width:2; fill:none; }
+  svg.schem .part{ fill:var(--paper-raised); stroke:currentColor; stroke-width:2; }
+  svg.schem .dot{ fill:currentColor; }
+  svg.schem .dotp{ fill:var(--power); }
+  svg.schem .dots{ fill:var(--gate); }
+
+  .to220{ display:grid; grid-template-columns:200px 1fr; gap:24px; align-items:center; }
+  svg.to220-svg{ max-width:200px; }
+  svg.to220-svg text{ font-family:'JetBrains Mono',monospace; fill:var(--ink); }
+  svg.to220-svg .t-sm{ font-size:11px; fill:var(--ink-soft); }
+  svg.to220-svg .t-part{ font-size:14px; font-weight:700; }
+  svg.to220-svg .t-pin{ font-size:16px; font-weight:700; }
+  @media (max-width:640px){ .to220{ grid-template-columns:1fr; } }
+  figcaption{
+    margin-top:10px;
+    font-size:0.85rem;
+    color:var(--ink-soft);
+    max-width:70ch;
+  }
+
+  .legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px 22px;
+    margin-top:14px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.78rem;
+  }
+  .legend span{ display:inline-flex; align-items:center; gap:7px; }
+  .legend i{ width:18px; height:3px; display:inline-block; border-radius:1px; }
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:0.88rem;
+  }
+  caption{ text-align:left; margin-bottom:8px; }
+  th, td{
+    text-align:left;
+    padding:9px 12px;
+    border-bottom:1px solid var(--rule);
+    vertical-align:top;
+  }
+  th{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.72rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    font-weight:600;
+    border-bottom:1px solid var(--rule-strong);
+  }
+  td.mono, .pin{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.85rem;
+  }
+  .tbl-wrap{ overflow-x:auto; }
+
+  .pinmap{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:1px;
+    background:var(--rule-strong);
+    border:1px solid var(--rule-strong);
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.82rem;
+  }
+  .pinmap > div{
+    background:var(--paper-raised);
+    padding:12px 14px;
+  }
+  .pinmap .head{
+    background:var(--tag-bg);
+    font-size:0.7rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    font-weight:600;
+  }
+  .pinmap .port{ font-weight:700; }
+  .pinmap .gate{ color:var(--gate); }
+  .pinmap .sense{ color:var(--sense); }
+
+  .checklist{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
+  .checklist li{
+    display:flex; gap:12px; align-items:flex-start;
+    font-size:0.92rem; line-height:1.5;
+  }
+  .checklist .num{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.78rem;
+    color:var(--paper-raised);
+    background:var(--ink);
+    width:22px; height:22px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+    margin-top:1px;
+  }
+
+  .warn{
+    margin-top:16px;
+    padding:12px 14px;
+    background:var(--tag-bg);
+    border-left:3px solid var(--power);
+    font-size:0.85rem;
+    line-height:1.5;
+  }
+  .warn b{ color:var(--power); }
+
+  code{
+    font-family:'JetBrains Mono',monospace;
+    background:var(--code-bg);
+    padding:0.1em 0.4em;
+    border-radius:3px;
+    font-size:0.92em;
+  }
+
+  footer{
+    padding:16px 32px 26px;
+    border-top:1px solid var(--rule);
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.72rem;
+    color:var(--ink-soft);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+
+  @media (max-width:640px){
+    .pinmap{ grid-template-columns:1fr; }
+    header{ flex-direction:column; align-items:flex-start; }
+    .drawing-no{ text-align:left; }
+  }
+
+  .parts, .check{ margin:14px 0 0; font-size:0.9rem; line-height:1.5; max-width:74ch; }
+  .check{ padding:10px 14px; background:var(--code-bg); border-left:3px solid var(--sense); }
+  .checklist{ margin-top:14px; }
+  a{ color:var(--sense); }
+</style>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="gnd"><path d="M0 0 V6 M-10 6 H10 M-6 10 H6 M-2 14 H2" stroke="currentColor" stroke-width="2" fill="none"/></g>
+  </defs>
+</svg>
+
+<div class="sheet">
+  <header>
+    <div class="title-block">
+      <h1>Радіомашинка — схеми підключення і що купити</h1>
+      <p>Загальна схема машинки, детальні схеми по етапах (живлення, серво, мотори), схема пульта і список покупок. Логіка прошивки — у <code>car/README.md</code> і <code>controller/README.md</code>, рішення — у <code>controller/design-log/</code>.</p>
+    </div>
+    <div class="drawing-no">
+      ПРОЄКТ <b>radio-car</b><br>
+      МАШИНКА <b>Witty Cloud (ESP8266)</b><br>
+      ПУЛЬТ <b>ESP32-C3 SuperMini</b><br>
+      РЕВ <b>01</b>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <h2>Загальна схема машинки</h2>
+      <figure>
+        <div class="schem-frame">
+          <svg class="schem" viewBox="0 0 1000 560" role="img" aria-label="Батарея 2S через вимикач і запобіжник 3A живить DRV8833 (VM) і понижувач LM2596; LM2596 дає 5 V на VCC Witty Cloud і на серво MG90S; GPIO4 Witty керує серво; GPIO5 і GPIO14 керують DRV8833 (IN1+IN3, IN2+IN4); 3V3 Witty на EEP; DRV8833 крутить два TT-мотори; усі GND спільні">
+            <!-- battery -->
+            <rect x="20" y="190" width="100" height="120" rx="4" fill="var(--tag-bg)" stroke="currentColor" stroke-width="2"/>
+            <text x="70" y="236" text-anchor="middle" style="font-weight:600">2×18650</text>
+            <text x="70" y="254" text-anchor="middle" class="lbl">2S</text>
+            <text x="70" y="270" text-anchor="middle" class="lbl">6.0–8.4 V</text>
+            <text x="126" y="214" style="fill:var(--power);font-weight:700">+</text>
+            <text x="126" y="296" style="font-weight:700">−</text>
+            <path class="w" d="M120 290 H150"/>
+            <use href="#gnd" x="150" y="290"/>
+
+            <!-- switch + fuse on + -->
+            <path class="wp" d="M120 220 H150" stroke-width="3"/>
+            <circle class="dotp" cx="150" cy="220" r="3.5"/>
+            <path d="M150 220 L176 207" stroke="var(--power)" stroke-width="2"/>
+            <circle class="dotp" cx="180" cy="220" r="3.5"/>
+            <text x="165" y="195" text-anchor="middle" class="lbl">вимикач</text>
+            <path class="wp" d="M180 220 H194"/>
+            <rect class="part" x="194" y="212" width="32" height="16" rx="2"/>
+            <text x="210" y="246" text-anchor="middle" class="lbl">3 A</text>
+            <path class="wp" d="M226 220 H260" stroke-width="3"/>
+            <circle class="dotp" cx="260" cy="220" r="4"/>
+
+            <!-- + to LM2596 and DRV8833 -->
+            <path class="wp" d="M260 220 V80 H300" stroke-width="3"/>
+            <path class="wp" d="M260 220 V360 H540" stroke-width="3"/>
+            <text x="268" y="352" class="lbl" style="fill:var(--power)">VBAT</text>
+
+            <!-- LM2596 -->
+            <rect class="part" x="300" y="50" width="130" height="80" rx="4"/>
+            <text x="365" y="84" text-anchor="middle" style="font-weight:600">LM2596</text>
+            <text x="365" y="102" text-anchor="middle" class="lbl">→ 5.0 V</text>
+            <text x="306" y="74" class="lbl">IN+</text>
+            <text x="398" y="74" class="lbl">OUT+</text>
+            <path class="w" d="M365 130 V150"/>
+            <use href="#gnd" x="365" y="150"/>
+
+            <!-- 5 V rail -->
+            <path class="wp" d="M430 80 H500" stroke-width="3"/>
+            <circle class="dotp" cx="500" cy="80" r="4"/>
+            <text x="452" y="70" class="lbl" style="fill:var(--power)">+5V</text>
+            <path class="wp" d="M500 80 H560"/>
+            <path class="wp" d="M500 80 V24 H810 V70 H840"/>
+
+            <!-- Witty Cloud -->
+            <rect x="560" y="50" width="180" height="210" rx="4" fill="var(--tag-bg)" stroke="currentColor" stroke-width="2"/>
+            <text x="650" y="128" text-anchor="middle" style="font-weight:700">Witty Cloud</text>
+            <text x="650" y="146" text-anchor="middle" class="lbl">ESP8266 · ESP-12F</text>
+            <text x="650" y="172" text-anchor="middle" class="lbl">RGB: 15 / 12 / 13</text>
+            <text x="566" y="84" class="lbl">VCC</text>
+            <text x="566" y="234" class="lbl">GND</text>
+            <path class="w" d="M560 230 H530"/>
+            <use href="#gnd" x="530" y="230"/>
+            <text x="682" y="104" class="lbl">GPIO4</text>
+            <text x="590" y="252" class="lbl">5</text>
+            <text x="636" y="252" class="lbl">14</text>
+            <text x="681" y="252" class="lbl">3V3</text>
+
+            <!-- servo -->
+            <path class="ws" d="M740 100 H840"/>
+            <rect class="part" x="840" y="45" width="130" height="105" rx="4"/>
+            <text x="905" y="92" text-anchor="middle" style="font-weight:600">MG90S</text>
+            <text x="905" y="110" text-anchor="middle" class="lbl">кермо</text>
+            <text x="846" y="66" class="lbl" style="fill:var(--power)">+</text>
+            <text x="846" y="96" class="lbl" style="fill:var(--gate)">S</text>
+            <text x="846" y="140" class="lbl">−</text>
+            <path class="w" d="M840 135 H815 V160"/>
+            <use href="#gnd" x="815" y="160"/>
+            <text x="905" y="192" text-anchor="middle" class="lbl">C1 1000 µF біля серво</text>
+
+            <!-- control lines Witty → DRV8833 -->
+            <path class="ws" d="M595 260 V330"/>
+            <path class="ws" d="M640 260 V330"/>
+            <path class="wp" d="M688 260 V330" style="stroke:var(--sense)"/>
+
+            <!-- DRV8833 -->
+            <rect class="part" x="540" y="330" width="180" height="190" rx="4"/>
+            <text x="630" y="430" text-anchor="middle" style="font-weight:700">DRV8833</text>
+            <text x="572" y="352" class="lbl">IN1+3</text>
+            <text x="622" y="370" class="lbl">IN2+4</text>
+            <text x="676" y="352" class="lbl">EEP</text>
+            <text x="546" y="364" class="lbl">VM</text>
+            <text x="546" y="512" class="lbl">GND</text>
+            <path class="w" d="M540 505 H505"/>
+            <use href="#gnd" x="505" y="505"/>
+            <text x="676" y="388" class="lbl">OUT1</text>
+            <text x="676" y="418" class="lbl">OUT2</text>
+            <text x="676" y="468" class="lbl">OUT3</text>
+            <text x="676" y="498" class="lbl">OUT4</text>
+            <text x="560" y="470" class="lbl">C2 47–470 µF</text>
+            <text x="560" y="486" class="lbl">VM–GND</text>
+
+            <!-- motors -->
+            <path class="w" d="M720 384 H800 V390"/>
+            <path class="w" d="M720 414 H800 V410"/>
+            <circle class="part" cx="840" cy="400" r="26"/>
+            <text x="840" y="405" text-anchor="middle" style="font-weight:700">M1</text>
+            <path class="w" d="M800 390 H814 M800 410 H814"/>
+            <path class="w" d="M720 464 H800 V470"/>
+            <path class="w" d="M720 494 H800 V490"/>
+            <circle class="part" cx="840" cy="480" r="26"/>
+            <text x="840" y="485" text-anchor="middle" style="font-weight:700">M2</text>
+            <path class="w" d="M800 470 H814 M800 490 H814"/>
+            <text x="880" y="404" class="lbl">TT лівий</text>
+            <text x="880" y="484" class="lbl">TT правий</text>
+            <text x="880" y="530" class="lbl">100 nF на клемах</text>
+          </svg>
+        </div>
+        <figcaption>Обидва мотори крутяться однаково, тому входи DRV8833 з'єднані попарно: IN1 з IN3 (GPIO5), IN2 з IN4 (GPIO14). Кожен мотор — на своєму каналі, щоб не перевантажити один канал (~1.5 A). Усі GND — батарея, LM2596, DRV8833, серво, Witty — з'єднані між собою.</figcaption>
+        <div class="legend">
+          <span><i style="background:var(--power);height:4px"></i>живлення «+» (VBAT, 5 V)</span>
+          <span><i style="background:currentColor;height:4px"></i>GND / мотори</span>
+          <span><i style="background:var(--gate)"></i>керування (GPIO)</span>
+          <span><i style="background:var(--sense)"></i>3.3 V від Witty</span>
+        </div>
+      </figure>
+
+      <h2 style="margin-top:28px">Піни</h2>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Плата</th><th>Пін</th><th>Куди</th><th>Що робить</th></tr></thead>
+          <tbody>
+            <tr><td>Witty</td><td class="mono">VCC</td><td class="mono">LM2596 OUT+ (5.0 V)</td><td>Живлення плати</td></tr>
+            <tr><td>Witty</td><td class="mono">GND</td><td class="mono">спільний GND</td><td></td></tr>
+            <tr><td>Witty</td><td class="mono">GPIO4</td><td class="mono">серво S (помаранчевий)</td><td>Кермо, імпульс 650–1650 µs (центр 1150)</td></tr>
+            <tr><td>Witty</td><td class="mono">GPIO5</td><td class="mono">DRV8833 IN1 + IN3</td><td>ШІМ «вперед»</td></tr>
+            <tr><td>Witty</td><td class="mono">GPIO14</td><td class="mono">DRV8833 IN2 + IN4</td><td>ШІМ «назад»</td></tr>
+            <tr><td>Witty</td><td class="mono">3V3</td><td class="mono">DRV8833 EEP</td><td>Увімкнути драйвер (якщо на модулі немає перемички)</td></tr>
+            <tr><td>Witty</td><td class="mono">GPIO15 / 12 / 13</td><td class="mono">RGB на платі</td><td>Стан зв'язку — вже на платі, нічого не паяти</td></tr>
+            <tr><td>Пульт</td><td class="mono">GPIO0</td><td class="mono">лівий стік VRy</td><td>Газ</td></tr>
+            <tr><td>Пульт</td><td class="mono">GPIO1</td><td class="mono">правий стік VRx</td><td>Кермо</td></tr>
+            <tr><td>Пульт</td><td class="mono">3V3 / GND</td><td class="mono">+ / GND обох стіків</td><td>Живлення потенціометрів</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="check">Вільними на Witty лишаються GPIO16 (без ШІМ), GPIO0 і GPIO2 (впливають на завантаження — не тягнути до GND при старті).</p>
+    </section>
+
+    <section>
+      <h2>Етап 1 · Живлення</h2>
+      <figure>
+        <div class="schem-frame">
+          <svg class="schem" viewBox="0 0 860 260" role="img" aria-label="Батарея 2S через вимикач і запобіжник 3A; гілка на VM DRV8833 з конденсатором C2 47–470 мкФ; гілка на IN+ LM2596; вихід LM2596 5.0 V на VCC Witty і на плюс серво">
+            <rect x="20" y="60" width="100" height="120" rx="4" fill="var(--tag-bg)" stroke="currentColor" stroke-width="2"/>
+            <text x="70" y="106" text-anchor="middle" style="font-weight:600">2×18650</text>
+            <text x="70" y="124" text-anchor="middle" class="lbl">2S + BMS</text>
+            <text x="70" y="140" text-anchor="middle" class="lbl">6.0–8.4 V</text>
+            <text x="126" y="84" style="fill:var(--power);font-weight:700">+</text>
+            <text x="126" y="166" style="font-weight:700">−</text>
+            <path class="w" d="M120 160 H150"/>
+            <use href="#gnd" x="150" y="160"/>
+
+            <path class="wp" d="M120 90 H150" stroke-width="3"/>
+            <circle class="dotp" cx="150" cy="90" r="3.5"/>
+            <path d="M150 90 L176 77" stroke="var(--power)" stroke-width="2"/>
+            <circle class="dotp" cx="180" cy="90" r="3.5"/>
+            <text x="165" y="65" text-anchor="middle" class="lbl">вимикач</text>
+            <path class="wp" d="M180 90 H194"/>
+            <rect class="part" x="194" y="82" width="32" height="16" rx="2"/>
+            <text x="210" y="116" text-anchor="middle" class="lbl">3 A</text>
+            <path class="wp" d="M226 90 H280" stroke-width="3"/>
+            <circle class="dotp" cx="280" cy="90" r="4"/>
+
+            <!-- branch to DRV VM -->
+            <path class="wp" d="M280 90 V200 H360" stroke-width="3"/>
+            <circle class="dotp" cx="330" cy="200" r="3.5"/>
+            <path class="wp" d="M330 200 V214"/>
+            <path class="w" d="M318 214 H342 M318 222 H342"/>
+            <path class="w" d="M330 222 V232"/>
+            <use href="#gnd" x="330" y="232"/>
+            <text x="300" y="252" class="lbl">C2 47–470 µF</text>
+            <text x="366" y="205" class="lbl" style="fill:var(--power)">→ DRV8833 VM (етап 3)</text>
+
+            <!-- LM2596 -->
+            <path class="wp" d="M280 90 H400" stroke-width="3"/>
+            <rect class="part" x="400" y="55" width="140" height="80" rx="4"/>
+            <text x="470" y="90" text-anchor="middle" style="font-weight:600">LM2596</text>
+            <text x="470" y="108" text-anchor="middle" class="lbl">виставити 5.0 V</text>
+            <text x="406" y="80" class="lbl">IN+</text>
+            <text x="500" y="80" class="lbl">OUT+</text>
+            <path class="w" d="M470 135 V150"/>
+            <use href="#gnd" x="470" y="150"/>
+            <text x="482" y="166" class="lbl">IN− = OUT− = GND</text>
+
+            <path class="wp" d="M540 90 H620" stroke-width="3"/>
+            <circle class="dotp" cx="620" cy="90" r="4"/>
+            <path class="wp" d="M620 90 V50 H660"/>
+            <path class="wp" d="M620 90 V130 H660"/>
+            <text x="666" y="55" class="lbl" style="fill:var(--power)">→ Witty VCC</text>
+            <text x="666" y="135" class="lbl" style="fill:var(--power)">→ серво + (етап 2)</text>
+          </svg>
+        </div>
+        <figcaption>LM2596 виставити на 5.0 V мультиметром <b>до</b> того, як підключати Witty і серво. 2S напряму йде тільки на VM DRV8833 (до 10.8 V) — на Witty і серво ніколи.</figcaption>
+      </figure>
+      <p class="parts"><b>Деталі:</b> 2×18650, тримач 2S, плата захисту BMS 2S, вимикач, запобіжник 3 A, LM2596, C2 47–470 µF / 16 V (мінімум 10 µF за даташитом DRV8833).</p>
+      <p class="check">Перевірка: вимкнено все, крім LM2596 → на виході 4.95–5.05 V. Полярність батареї — двічі.</p>
+    </section>
+
+    <section>
+      <h2>Етап 2 · Серво (кермо)</h2>
+      <figure>
+        <div class="schem-frame">
+          <svg class="schem" viewBox="0 0 760 210" role="img" aria-label="GPIO4 Witty на сигнальний провід серво; плюс 5 V від LM2596 на червоний провід; GND на коричневий; конденсатор C1 1000 мкФ між плюсом і GND біля роз'єму серво">
+            <rect x="20" y="40" width="150" height="130" rx="4" fill="var(--tag-bg)" stroke="currentColor" stroke-width="2"/>
+            <text x="95" y="100" text-anchor="middle" style="font-weight:700">Witty</text>
+            <text x="120" y="78" class="lbl">GPIO4</text>
+            <text x="128" y="158" class="lbl">GND</text>
+
+            <text x="250" y="34" class="lbl" style="fill:var(--power)">+5V від LM2596</text>
+            <path class="wp" d="M250 44 H360 V60 H520"/>
+            <path class="ws" d="M170 74 H520"/>
+            <path class="w" d="M170 154 H520"/>
+            <circle class="dot" cx="400" cy="154" r="3.5"/>
+            <circle class="dotp" cx="400" cy="60" r="3.5"/>
+            <path class="wp" d="M400 60 V92"/>
+            <path class="w" d="M386 92 H414"/>
+            <path d="M386 104 Q400 96 414 104" stroke="currentColor" stroke-width="2" fill="none"/>
+            <path class="w" d="M400 101 V154"/>
+            <text x="420" y="104" class="lbl">C1 1000 µF</text>
+            <text x="380" y="88" class="lbl" style="fill:var(--power)">+</text>
+            <use href="#gnd" x="250" y="154"/>
+
+            <rect class="part" x="520" y="40" width="160" height="130" rx="4"/>
+            <text x="600" y="110" text-anchor="middle" style="font-weight:700">MG90S</text>
+            <text x="528" y="64" class="lbl" style="fill:var(--power)">червоний +</text>
+            <text x="528" y="88" class="lbl" style="fill:var(--gate)">помаранч. S</text>
+            <text x="528" y="158" class="lbl">коричневий −</text>
+          </svg>
+        </div>
+        <figcaption>C1 — електроліт, смужка «−» на GND, якомога ближче до роз'єму серво. Без нього працює, але якщо машинка перезавантажується під час повороту (LED проходить самотест червоний → зелений → синій) — поставити.</figcaption>
+      </figure>
+      <p class="parts"><b>Деталі:</b> MG90S, C1 1000 µF / 16 V (за потреби).</p>
+      <p class="check">Калібрування в <code>car/src/main.cpp</code>: <code>SERVO_CAL{1150, 500, false}</code> — центр 1150 µs, хід ±500 µs. Колеса не повинні впиратися на повному ході.</p>
+    </section>
+
+    <section>
+      <h2>Етап 3 · Мотори (DRV8833)</h2>
+      <figure>
+        <div class="schem-frame">
+          <svg class="schem" viewBox="0 0 860 320" role="img" aria-label="GPIO5 Witty на IN1 і IN3 DRV8833, GPIO14 на IN2 і IN4, 3V3 на EEP, VBAT на VCC/VM, GND спільний; OUT1 і OUT2 на мотор M1, OUT3 і OUT4 на мотор M2; по 100 нФ на клемах моторів">
+            <rect x="20" y="50" width="150" height="190" rx="4" fill="var(--tag-bg)" stroke="currentColor" stroke-width="2"/>
+            <text x="95" y="150" text-anchor="middle" style="font-weight:700">Witty</text>
+            <text x="116" y="84" class="lbl">GPIO5</text>
+            <text x="108" y="124" class="lbl">GPIO14</text>
+            <text x="130" y="194" class="lbl">3V3</text>
+            <text x="128" y="230" class="lbl">GND</text>
+
+            <path class="ws" d="M170 80 H260"/>
+            <circle class="dots" cx="260" cy="80" r="3.5"/>
+            <path class="ws" d="M260 80 H360 M260 80 V100 H360"/>
+            <path class="ws" d="M170 120 H240 V140 H360"/>
+            <circle class="dots" cx="240" cy="140" r="3.5"/>
+            <path class="ws" d="M240 140 V160 H360"/>
+            <path class="wp" d="M170 190 H360" style="stroke:var(--sense)"/>
+            <path class="w" d="M170 226 H360"/>
+            <text x="196" y="300" class="lbl" style="fill:var(--power)">VBAT (етап 1)</text>
+            <path class="wp" d="M300 306 V250 H360" stroke-width="3"/>
+            <use href="#gnd" x="220" y="226"/>
+
+            <rect class="part" x="360" y="40" width="180" height="250" rx="4"/>
+            <text x="450" y="30" text-anchor="middle" style="font-weight:700">DRV8833</text>
+            <text x="368" y="84" class="lbl">IN1</text>
+            <text x="368" y="104" class="lbl">IN3</text>
+            <text x="368" y="144" class="lbl">IN2</text>
+            <text x="368" y="164" class="lbl">IN4</text>
+            <text x="368" y="194" class="lbl">EEP</text>
+            <text x="368" y="230" class="lbl">GND</text>
+            <text x="368" y="254" class="lbl">VCC (VM)</text>
+            <text x="492" y="84" class="lbl">OUT1</text>
+            <text x="492" y="124" class="lbl">OUT2</text>
+            <text x="492" y="184" class="lbl">OUT3</text>
+            <text x="492" y="224" class="lbl">OUT4</text>
+
+            <path class="w" d="M540 80 H640 V92"/>
+            <path class="w" d="M540 120 H640 V108"/>
+            <circle class="part" cx="680" cy="100" r="28"/>
+            <text x="680" y="105" text-anchor="middle" style="font-weight:700">M1</text>
+            <path class="w" d="M640 92 H652 M640 108 H652"/>
+            <path class="w" d="M600 80 V88 M592 88 H608 M592 94 H608 M600 94 V120"/>
+            <text x="560" y="140" class="lbl">100 nF</text>
+
+            <path class="w" d="M540 180 H640 V192"/>
+            <path class="w" d="M540 220 H640 V208"/>
+            <circle class="part" cx="680" cy="200" r="28"/>
+            <text x="680" y="205" text-anchor="middle" style="font-weight:700">M2</text>
+            <path class="w" d="M640 192 H652 M640 208 H652"/>
+            <path class="w" d="M600 180 V188 M592 188 H608 M592 194 H608 M600 194 V220"/>
+            <text x="560" y="240" class="lbl">100 nF</text>
+
+            <text x="720" y="104" class="lbl">TT лівий</text>
+            <text x="720" y="204" class="lbl">TT правий</text>
+          </svg>
+        </div>
+        <figcaption>Назви пінів — як на поширеному модулі DRV8833 (IN1–IN4, OUT1–OUT4, EEP, ULT). EEP — вхід «увімкнути»: якщо на модулі є перемичка/резистор на VCC, провід до 3V3 не потрібен. ULT (fault) не підключаємо.</figcaption>
+      </figure>
+      <p class="parts"><b>Деталі:</b> DRV8833, 2× TT-мотор, 2× 100 nF кераміка (паяти прямо на клеми моторів — менше перешкод для радіо).</p>
+      <p class="check">Якщо один мотор крутиться в інший бік — поміняти місцями два його дроти. ШІМ обмежена 70% у прошивці (2S дає до 8.4 V, TT-мотори розраховані на 3–6 V).</p>
+    </section>
+
+    <section>
+      <h2>Пульт · ESP32-C3 SuperMini</h2>
+      <figure>
+        <div class="schem-frame">
+          <svg class="schem" viewBox="0 0 760 250" role="img" aria-label="Два джойстик-модулі: плюс на 3V3 SuperMini, GND на GND; VRy лівого на GPIO0, VRx правого на GPIO1; живлення пульта по USB-C">
+            <rect x="280" y="40" width="180" height="170" rx="4" fill="var(--tag-bg)" stroke="currentColor" stroke-width="2"/>
+            <text x="370" y="120" text-anchor="middle" style="font-weight:700">ESP32-C3</text>
+            <text x="370" y="138" text-anchor="middle" class="lbl">SuperMini</text>
+            <text x="370" y="200" text-anchor="middle" class="lbl">USB-C — живлення</text>
+            <text x="286" y="74" class="lbl">GPIO0</text>
+            <text x="406" y="74" class="lbl">GPIO1</text>
+            <text x="286" y="164" class="lbl">3V3</text>
+            <text x="420" y="164" class="lbl">GND</text>
+
+            <rect class="part" x="20" y="40" width="160" height="150" rx="4"/>
+            <text x="100" y="70" text-anchor="middle" style="font-weight:700">Лівий стік</text>
+            <text x="100" y="88" text-anchor="middle" class="lbl">газ</text>
+            <text x="30" y="124" class="lbl">VRy</text>
+            <text x="30" y="160" class="lbl" style="fill:var(--power)">+5V пін → 3V3!</text>
+            <text x="30" y="180" class="lbl">GND</text>
+            <path class="ws" d="M180 120 H230 V70 H280"/>
+            <path class="wp" d="M180 156 H280" style="stroke:var(--sense)"/>
+            <path class="w" d="M180 176 H250 V230 H520 V160 H460"/>
+
+            <rect class="part" x="580" y="40" width="160" height="150" rx="4"/>
+            <text x="660" y="70" text-anchor="middle" style="font-weight:700">Правий стік</text>
+            <text x="660" y="88" text-anchor="middle" class="lbl">кермо</text>
+            <text x="690" y="124" class="lbl">VRx</text>
+            <text x="672" y="160" class="lbl" style="fill:var(--sense)">+ → 3V3</text>
+            <text x="700" y="180" class="lbl">GND</text>
+            <path class="ws" d="M580 120 H500 V70 H460"/>
+            <path class="wp" d="M580 156 H540 V24 H240 V156" style="stroke:var(--sense)"/>
+            <circle cx="240" cy="156" r="3.5" style="fill:var(--sense)"/>
+            <path class="w" d="M580 176 H520"/>
+            <circle class="dot" cx="520" cy="176" r="3.5"/>
+          </svg>
+        </div>
+        <figcaption>Пін «+5V» на джойстик-модулі підключати до <b>3V3</b>, не до 5 V: АЦП ESP32-C3 приймає максимум 3.3 V. Кнопки стіків (SW) не підключені.</figcaption>
+      </figure>
+      <p class="check">Калібрування стіків — у <code>controller/src/main.cpp</code> (<code>THROTTLE_CAL</code>, <code>STEERING_CAL</code>). Живлення пульта поки від USB.</p>
+    </section>
+
+    <section>
+      <h2>Перед першим увімкненням</h2>
+      <ul class="checklist">
+        <li><span class="num">1</span><span>LM2596 виставлено на 5.0 V — виміряно мультиметром без навантаження.</span></li>
+        <li><span class="num">2</span><span>2S (VBAT) йде лише на LM2596 IN+ і DRV8833 VCC. На Witty VCC і серво — тільки 5 V.</span></li>
+        <li><span class="num">3</span><span>Усі GND з'єднані: батарея, LM2596, DRV8833, серво, Witty.</span></li>
+        <li><span class="num">4</span><span>Електролітичні конденсатори — смужкою «−» на GND.</span></li>
+        <li><span class="num">5</span><span>Перший запуск — колеса в повітрі: машинка на підставці.</span></li>
+        <li><span class="num">6</span><span>Вимкни пульт — машинка має зупинити мотори і вирівняти колеса (LED мигає червоним).</span></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Що купити</h2>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Позиція</th><th>К-сть</th><th>Навіщо</th></tr></thead>
+          <tbody>
+            <tr><td>Witty Cloud ESP8266 (<b>є</b>)</td><td class="mono">1</td><td>Мозок машинки, RGB стану зв'язку</td></tr>
+            <tr><td>ESP32-C3 SuperMini (<b>є</b>)</td><td class="mono">1</td><td>Пульт</td></tr>
+            <tr><td>Джойстик-модулі KY-023 (<b>є</b>)</td><td class="mono">2</td><td>Газ і кермо</td></tr>
+            <tr><td>DRV8833 модуль (<b>є</b>)</td><td class="mono">1</td><td>Драйвер двох TT-моторів</td></tr>
+            <tr><td>TT-мотори з редуктором (<b>є</b>)</td><td class="mono">2</td><td>Привід</td></tr>
+            <tr><td>Серво MG90S (<b>є</b>)</td><td class="mono">1</td><td>Кермо напряму, без тяг</td></tr>
+            <tr><td>LM2596 модуль (<b>є</b>)</td><td class="mono">1</td><td>2S → 5.0 V для Witty і серво</td></tr>
+            <tr><td>18650 (<b>є</b>) + тримач 2S</td><td class="mono">2 + 1</td><td>Живлення 6.0–8.4 V</td></tr>
+            <tr><td>Плата захисту BMS 2S (2S 3–5 A)</td><td class="mono">1</td><td>Не дати розрядити 18650 нижче ~3 V на банку — без неї акумулятори псуються</td></tr>
+            <tr><td>Зарядка 2S (або заряджати банки окремо)</td><td class="mono">1</td><td>Заряд 8.4 V</td></tr>
+            <tr><td>Вимикач (тумблер) 3 A+</td><td class="mono">1</td><td>Головний вимикач на «+» батареї</td></tr>
+            <tr><td>Тримач запобіжника + запобіжник 3 A</td><td class="mono">1</td><td>Захист від короткого замикання</td></tr>
+            <tr><td>Конденсатор 47–470 µF 16 V (<b>є</b> 47 µF)</td><td class="mono">1</td><td>C2 на VM DRV8833</td></tr>
+            <tr><td>Конденсатор 1000 µF 16 V</td><td class="mono">1</td><td>C1 біля серво (за потреби)</td></tr>
+            <tr><td>Конденсатор керамічний 100 nF</td><td class="mono">2</td><td>На клеми моторів</td></tr>
+            <tr><td>Провід силіконовий 20–22AWG червоний + чорний</td><td class="mono">по 1 м</td><td>Батарея, мотори, VM</td></tr>
+            <tr><td>Дроти Dupont мама-мама</td><td class="mono">~15</td><td>Сигнали, серво, джойстики</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin:12px 0 0;font-size:0.85rem;color:var(--ink-soft);max-width:70ch">«Є» — те, що вже використано в проєкті. Модель джойстиків (KY-023) — припущення за типовими модулями з VRx/VRy/SW.</p>
+    </section>
+  </main>
+
+  <footer>
+    <span>radio-car · схеми</span>
+    <span>машинка: car/README.md · пульт: controller/README.md</span>
+  </footer>
+</div>
